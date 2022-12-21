@@ -8,7 +8,6 @@
 
 #define ARR_SIZE 10000
 #define N_PARTS 50
-#define THREADS_NUM 100
 
 int64_t static summa = 0;
 
@@ -37,17 +36,6 @@ int main()
 	for (int i = 0; i < ARR_SIZE; i++)
 	{
 		array[i] = getRandomNumber(1, 100);
-		//int x = THREADS_NUM + 1;
-		//while (x > THREADS_NUM)
-		//{
-		//	x = 1 + std::rand() / ((RAND_MAX + 1u) / THREADS_NUM);
-		//	array[i] = x;
-		//	std::cout << array[i] << " ";
-		//}
-		//if ((i + 1) % THREADS_NUM == 0)
-		//{
-		//	std::cout << std::endl;
-		//}
 	}
 
 	auto begin = std::chrono::steady_clock::now();
