@@ -6,8 +6,8 @@
 #include <random>
 #include <chrono>
 
-#define ARR_SIZE 10000
-#define N_PARTS 50
+#define ARR_SIZE 100000
+#define N_PARTS 10
 
 int64_t static summa = 0;
 
@@ -19,7 +19,7 @@ void arr_sum(int arr[], int begin, int end)
 		summa += arr[i];
 	}
 
-	std::cout << "sum(" << begin << "..." << end << ") = " << summa - s << std::endl;
+	//std::cout << "sum(" << begin << "..." << end << ") = " << summa - s << std::endl;
 }
 
  int getRandomNumber(int min, int max)
@@ -32,30 +32,56 @@ void arr_sum(int arr[], int begin, int end)
 int main()
 {
 	int array[ARR_SIZE]{};
+	std::thread thread_arr[N_PARTS]{};
 
 	for (int i = 0; i < ARR_SIZE; i++)
 	{
 		array[i] = getRandomNumber(1, 100);
 	}
 
+	std::cout << "multistream  case:" << std::endl;
+
 	auto begin = std::chrono::steady_clock::now();
 
+	int j = 0;
 	for (int i = 0; i < ARR_SIZE; i += ARR_SIZE / N_PARTS)
 	{
 		int begin = i;
 		int end = i + ARR_SIZE / N_PARTS;
-		std::thread t(arr_sum, std::ref(array), std::ref(begin), std::ref(end));
+		thread_arr[j] = std::thread (arr_sum, std::ref(array), std::ref(begin), std::ref(end));
 
-		if (t.joinable())
-			t.join();
+		if (thread_arr[j].joinable())
+			thread_arr[j].join();
+
+		j++;
 	}
+
+	//for (int i = 0; i < N_PARTS; i++)
+	//{
+	//	if (thread_arr[i].joinable())
+	//		thread_arr[i].join();
+	//}
 
 	std::cout << "sum of all array elements = " << summa << std::endl;
 
 	auto end = std::chrono::steady_clock::now();
-
 	auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds> (end - begin);	//duration in milliseconds
+	std::cout << "elapsed time = " << elapsed_time.count() << " ms" << std::endl << std::endl;
 
+	std::cout << "scalar case:" << std::endl;
+	summa = 0;
+
+	begin = std::chrono::steady_clock::now();
+
+	for (int i = 0; i < ARR_SIZE; i++)
+	{
+		summa += array[i];
+	}
+
+	std::cout << "sum of all array elements = " << summa << std::endl;
+
+	end = std::chrono::steady_clock::now();
+	elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds> (end - begin);	//duration in milliseconds
 	std::cout << "elapsed time = " << elapsed_time.count() << " ms" << std::endl;
 
 	return 0;
